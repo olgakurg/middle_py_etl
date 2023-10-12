@@ -5,10 +5,10 @@ import logging
 from .settings import E_LOG, index_body
 
 
-class ElasticsearchConnection(metaclass=SingletonMeta):
-    """Class of static elasticservice connection"""
+class ElasticsearchConnection():
+    """Class of elasticservice connection"""
 
-    def __init__(self, url : str):
+    def __init__(self, url):
         self.es = Elasticsearch(url)
 
     @backoff(log_file=E_LOG)

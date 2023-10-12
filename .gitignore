@@ -136,3 +136,7 @@ dump
 postgresql_data/
 simple_project/postgres.env
 docker_compose/simple_project/postgres.env
+postgresql.tar.gz
+etl/uwsgi/uwsgi.ini
+data/
+*.json

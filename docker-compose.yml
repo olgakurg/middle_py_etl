@@ -4,16 +4,18 @@ services:
   db:
     image: postgres:15-alpine
     volumes:
-      - /opt/simple_project/postgresql_data:/var/lib/postgresql/data
+     - /opt/postgresql15/postgresql_data:/var/lib/postgresql/data
     env_file:
       - etl/.env
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     volumes:
-      -  /opt/simple_project/elasticsearch_data:/var/lib/elasticsearch/data
+      - ./data:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
+    container_name: elasticsearch
 
   web:
     build: 
@@ -36,4 +38,3 @@ services:
       - ./data/static:/var/www/html/static
     depends_on:
       - web
-
