@@ -8,6 +8,13 @@ services:
     env_file:
       - etl/.env
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    volumes:
+      -  /opt/simple_project/elasticsearch_data:/var/lib/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+
   web:
     build: 
       context: ./etl
@@ -17,6 +24,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - elasticsearch
 
   nginx:
     image: nginx:1.25
@@ -29,9 +37,3 @@ services:
     depends_on:
       - web
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
-    volumes:
-      -  /opt/simple_project/elasticsearch_data:/var/lib/elasticseas/data
-    environment:
-      - discovery.type=single-node
