@@ -1,9 +1,21 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 E_LOG = 'elastic.log'
 PG_LOG = 'db.log'
 main_state = 'main_state.json'
 BULK_SIZE = 1000
 TIME_OUT = 10
-DSL = {'dbname': 'content', 'user': 'app', 'password': '123qwe', 'host': 'db', 'port': 5432}    
+DSL = {
+        'dbname': os.environ.get('DB_NAME'),
+        'user': os.environ.get('DB_USER'),
+        'password': os.environ.get('DB_PASSWORD'),
+        'host': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', 5432),
+    }
+
 EDSL = "http://elasticsearch:9200"
 initial_date = '1900-06-16 20:14:09.268672+00'
 initial_source = ['genre', 'person', 'film_work']

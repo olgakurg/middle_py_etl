@@ -15,8 +15,8 @@ RUN  pip install --no-cache-dir --upgrade pip \
      && pip install --no-cache-dir --upgrade setuptools \
      && pip install -r requirements.txt 
 
-CMD ["python", "pg_to_elastic.py"]
-
 COPY . .
 
 EXPOSE 8000
+
+CMD ["python", "pg_to_elastic.py"]

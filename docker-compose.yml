@@ -27,6 +27,7 @@ services:
     depends_on:
       - db
       - elasticsearch
+    restart: always
 
   nginx:
     image: nginx:1.25

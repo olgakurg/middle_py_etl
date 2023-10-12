@@ -1,7 +1,8 @@
-from .backoff import backoff
-from .singleton import SingletonMeta
-from elasticsearch import Elasticsearch, helpers
 import logging
+
+from elasticsearch import Elasticsearch, helpers
+
+from .backoff import backoff
 from .settings import E_LOG, index_body
 
 

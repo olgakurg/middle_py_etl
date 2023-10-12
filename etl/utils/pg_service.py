@@ -10,12 +10,18 @@ from psycopg.rows import dict_row
 class PostgresConnection(metaclass=SingletonMeta):
     """Class of static postgres connection"""
     def __init__(self, **kwargs):
-        self.conn = psycopg.connect(**kwargs)
+        self.path = kwargs
+        self.conn = psycopg.connect(**self.path)
 
     @backoff(log_file=PG_LOG)
     def get_connection(self):
         """establishes a connection with db, uses special naive backoff procedure for recovery"""
-        return self.conn
+        if not (conn := self.conn):
+            conn = psycopg.connect(**self.path)
+        return conn
+        
+    def close_connection(self):
+        self.conn.close()
 
 
 class PostgresExtractor:
@@ -36,7 +42,8 @@ class PostgresExtractor:
                 LEFT JOIN content.{table_name}_film_work ifw ON ifw.film_work_id = fw.id
                 WHERE ifw.{table_name}_id IN ({ids_str})
                     """
-        with self.connection.cursor() as cursor:
+        cursor = self.connection.cursor()
+        with cursor:
             try:
                 rows = cursor.execute(fw_by_ref_query)
                 films = rows.fetchall()
@@ -45,7 +52,6 @@ class PostgresExtractor:
             if films:
                 for film in films:
                     fw_ids.add(str(film[0]))
-            cursor.close()
         return fw_ids
 
     def query_for_new_ids(self, table_name: str, last_unloaded: str) -> str:
@@ -85,7 +91,7 @@ class PostgresExtractor:
                 rows = cursor.execute(big_query)
                 films = rows.fetchall()
             except psycopg.Error as err:
-                print(err)
+                logging.error(err)
         return films
 
     def extract(self, table_name: str, ids: list) -> list[dict]:
@@ -94,5 +100,4 @@ class PostgresExtractor:
         if table_name in ("genre", "person"):
             fw_ids = self.get_throw_refs(table_name, ids)
             return self.enrich_by_id(fw_ids)
-
         return self.enrich_by_id(ids)

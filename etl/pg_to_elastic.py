@@ -1,9 +1,12 @@
-import logging, time
+import logging
+import time
 
+import psycopg
+from psycopg.rows import dict_row
+
+from utils.elastic_service import ElasticsearchConnection, ElasticsearchLoader
 from utils.json_state import JsonState
 from utils.pg_service import PostgresConnection, PostgresExtractor
-from utils.elastic_service import ElasticsearchConnection, ElasticsearchLoader
-from utils.transform_service import tranform_bulk
 from utils.settings import (
     BULK_SIZE,
     TIME_OUT,
@@ -14,9 +17,7 @@ from utils.settings import (
     all_sources,
     initial_source,
 )
-import psycopg
-from psycopg.rows import dict_row
-
+from utils.transform_service import tranform_bulk
 
 def bulk_etl(
     cursor: psycopg.Cursor,
@@ -36,14 +37,9 @@ def bulk_etl(
             tmp = cursor.execute(query)
         except psycopg.Error as err:
             logging.error(err)
-        while True:
-            new_ids = cursor.fetchmany(BULK_SIZE)
-            if not new_ids:
-                break
+        while (new_ids := cursor.fetchmany(BULK_SIZE)):
             last_id = new_ids[-1]
-            current_state[table] = last_id["modified"].strftime(
-                "%Y-%m-%d %H:%M:%S.%f%z"
-            )
+            current_state[table] = last_id["modified"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
             bulk = extractor.extract(table, new_ids)
             record = tranform_bulk(bulk)
             msg = loader.load_bulk(record)
@@ -76,14 +72,13 @@ def main():
                 time.sleep(TIME_OUT)
 
         else:
-            print("INITIAL LOADING STARTS")
             current_state = dict.fromkeys(
                 ["genre", "person", "film_work"], initial_date
             )
             state.save_state(current_state)
             loader.create_index()
             bulk_etl(cursor, extractor, loader, initial_source)
-
+    postgres_conn.close_connection()
 
 if __name__ == "__main__":
     main()
