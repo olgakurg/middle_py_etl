@@ -1,16 +1,19 @@
 from typing import List
 from pydantic import BaseModel
 
+
 class Actor(BaseModel):
     id: str
     name: str
+
 
 class Writer(BaseModel):
     id: str
     name: str
 
+
 class Movie(BaseModel):
-    id : str
+    id: str
     imdb_rating: float
     genre: List[str]
     title: str

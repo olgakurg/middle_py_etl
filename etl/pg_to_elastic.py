@@ -17,7 +17,7 @@ from utils.settings import (
     all_sources,
     initial_source,
 )
-from utils.transform_service import tranform_bulk
+from utils.transform_service import transform_bulk
 
 def bulk_etl(
     cursor: psycopg.Cursor,
@@ -41,7 +41,7 @@ def bulk_etl(
             last_id = new_ids[-1]
             current_state[table] = last_id["modified"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
             bulk = extractor.extract(table, new_ids)
-            record = tranform_bulk(bulk)
+            record = transform_bulk(bulk)
             msg = loader.load_bulk(record)
             logging.info(msg)
             state.save_state(current_state)

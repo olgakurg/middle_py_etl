@@ -1,11 +1,12 @@
 from uuid import UUID
-from .pydantic_service import Movie, Actor, Writer
+from pydantic_service import Movie, Actor, Writer
 from operator import itemgetter
 from itertools import groupby
 
 
 def make_records(raw: list[dict]) -> list[dict]:
-    """Merges raw response (list of values for each genre, person) to a list of records - dict coalesced for persons and genres"""
+    """Merges raw response (list of values for each genre, person) to a list of records - dict coalesced for persons
+    and genres"""
 
     raw.sort(key=itemgetter("fw_id"))
     record = []
@@ -38,7 +39,7 @@ def make_records(raw: list[dict]) -> list[dict]:
 
 
 def convert_to_movie(row: dict) -> Movie:
-    """Converts and valids coalesced dict to Movie instance"""
+    """Converts and valid coalesced dict to Movie instance"""
 
     actors = [
         Actor(id=p["person_id"], name=p["person_name"])
@@ -69,7 +70,7 @@ def convert_to_movie(row: dict) -> Movie:
     return Movie.parse_obj(movie_dict)
 
 
-def tranform_bulk(rows: list[dict]) -> list[Movie]:
+def transform_bulk(rows: list[dict]) -> list[Movie]:
     records = make_records(rows)
     movies = [convert_to_movie(record) for record in records]
     return movies

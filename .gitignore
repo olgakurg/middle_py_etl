@@ -140,3 +140,7 @@ postgresql.tar.gz
 etl/uwsgi/uwsgi.ini
 data/
 *.json
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/middle_py_etl.iml
